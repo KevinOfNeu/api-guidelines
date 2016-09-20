@@ -4,12 +4,12 @@ Microsoft REST API 指南是整个 Microsoft 为设计一致风格的 REST API �
 根据此文档的指导进行反馈。请注意，这些仅仅是指南，而不是规定。请保持自己主见积极地提议来改进这个仓库的任何东西，包括此文档本身。
 
 请注意此工程是和 [Contributor Code of Conduct][code-of-conduct] 一起发布的。参与此工程你需要遵守以下条款。
-- [创建 issues](#创建 issues)
+- [创建 issues](#创建issues)
 - [文档格式指南](#文档格式指南)
-- [Commit 信息](#Commit 信息)
+- [Commit 信息](#Commit信息)
 - [Pull requests](#pull-requests)
 
-## 创建 issues
+## 创建issues
 - 你可以 [创建 issues][new-issue], 在这之前你最好仔细阅读下面的一些细节。
 - 请[搜索一下][issue-search]，确认是否有相似的issue之前被提出过。
 - 指定你在使用的Microsoft REST API指南的版本号。
@@ -75,7 +75,7 @@ Content-Type: application/json
 }
 ```
 
-## Commit 信息
+## Commit信息
 - 使用现在式 "Change ...", 而不是过去式 "Changed ..."
 - 使用祈使语气，例如 "Change ...", 不是 "Changes ..."
 - 首行使用72个字符或者更少
