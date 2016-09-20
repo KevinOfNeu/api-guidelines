@@ -15,10 +15,10 @@ Rob Howard (ASG)             | Peter Torr  (OSG)                      | Chris Mu
 
 # Microsoft REST API 指南
 ## 1 摘要
-作为一个设计的原则，鼓励应用程序开发者通过RESTful的HTTP接口去获取资源。为了让追随Microsoft REST API 指南的开发者有尽可能的优雅的使用体验，
+作为一个设计的原则，鼓励应用程序开发者通过 RESTful 的 HTTP 接口去获取资源。为了让追随 Microsoft REST API 指南的开发者有尽可能优雅的使用体验，
 REST APIs 应该保持一贯的设计原则，来提高易用性和更具有倡导性。
 
-此文档建立了Microsoft REST APIs 应该遵循的指南，使得RESTFUL的接口可以被一致的开发。
+此文档建立了 Microsoft REST APIs 应该遵循的指南，使得 RESTFUL 的接口可以被一致的开发。
 
 
 ## 2 目录
