@@ -1,5 +1,5 @@
-# Microsoft REST API Guidelines
-## Microsoft REST API Guidelines Working Group
+# Microsoft REST API 指南
+## Microsoft REST API 指南工作组
 
  | | |
 ---------------------------- | -------------------------------------- | ----------------------------------------
@@ -8,109 +8,110 @@ Mark Russinovich (CTO Azure) | Steve Lucco (Technical Fellow, DevDiv) | Murali K
 Rob Howard (ASG)             | Peter Torr  (OSG)                      | Chris Mullins (ASG)
 
 <div style="font-size:150%">
-Document editors: John Gossman (C+E), Chris Mullins (ASG), Gareth Jones (ASG), Rob Dolin (C+E), Mark Stafford (C+E)<br/>
+文档编辑者: John Gossman (C+E), Chris Mullins (ASG), Gareth Jones (ASG), Rob Dolin (C+E), Mark Stafford (C+E)<br/>
 </div>
 
 
 
-# Microsoft REST API Guidelines
-## 1 Abstract
-The Microsoft REST API Guidelines, as a design principle, encourages application developers to have resources accessible to them via a RESTful HTTP interface.
-To provide the smoothest possible experience for developers on platforms following the Microsoft REST API Guidelines, REST APIs SHOULD follow consistent design guidelines to make using them easy and intuitive.
+# Microsoft REST API 指南
+## 1 摘要
+作为一个设计的原则，鼓励应用程序开发者通过RESTful的HTTP接口去获取资源。为了让追随Microsoft REST API 指南的开发者有尽可能的优雅的使用体验，
+REST APIs 应该保持一贯的设计原则，来提高易用性和更具有倡导性。
 
-This document establishes the guidelines Microsoft REST APIs SHOULD follow so RESTful interfaces are developed consistently.
+此文档建立了Microsoft REST APIs 应该遵循的指南，使得RESTFUL的接口可以被一致的开发。
 
-## 2 Table of contents
+
+## 2 目录
 <!-- TOC depthFrom:1 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Microsoft REST API Guidelines 2.3](#microsoft-rest-api-guidelines-23)
-  - [Microsoft REST API Guidelines Working Group](#microsoft-rest-api-guidelines-working-group)
+- [Microsoft REST API 指南 2.3](#microsoft-rest-api-guidelines-23)
+  - [Microsoft REST API 指南工作组](#microsoft-rest-api-guidelines-working-group)
 - [Microsoft REST API Guidelines](#microsoft-rest-api-guidelines)
-  - [1 Abstract](#1-abstract)
-  - [2 Table of contents](#2-table-of-contents)
-  - [3 Introduction](#3-introduction)
-    - [3.1 Recommended reading](#31-recommended-reading)
-  - [4    Interpreting the guidelines](#4-interpreting-the-guidelines)
-    - [4.1    Application of the guidelines](#41-application-of-the-guidelines)
-    - [4.2    Guidelines for existing services and versioning of services](#42-guidelines-for-existing-services-and-versioning-of-services)
-    - [4.3    Requirements language](#43-requirements-language)
-    - [4.4    License](#44-license)
-  - [5 Taxonomy](#5-taxonomy)
-    - [5.1    Errors](#51-errors)
-    - [5.2    Faults](#52-faults)
-    - [5.3    Latency](#53-latency)
-    - [5.4    Time to complete](#54-time-to-complete)
-    - [5.5    Long running API faults](#55-long-running-api-faults)
-  - [6    Client guidance](#6-client-guidance)
-    - [6.1    Ignore rule](#61-ignore-rule)
-    - [6.2    Variable order rule](#62-variable-order-rule)
-    - [6.3    Silent fail rule](#63-silent-fail-rule)
-  - [7    Consistency fundamentals](#7-consistency-fundamentals)
-    - [7.1    URL structure](#71-url-structure)
-    - [7.2    URL length](#72-url-length)
-    - [7.3    Canonical identifier](#73-canonical-identifier)
-    - [7.4    Supported methods](#74-supported-methods)
-    - [7.5    Standard request headers](#75-standard-request-headers)
-    - [7.6    Standard response headers](#76-standard-response-headers)
-    - [7.7    Custom headers](#77-custom-headers)
-    - [7.8    Specifying headers as query parameters](#78-specifying-headers-as-query-parameters)
-    - [7.9    PII parameters](#79-pii-parameters)
-    - [7.10   Response formats](#710-response-formats)
-    - [7.11   HTTP Status Codes](#711-http-status-codes)
-    - [7.12   Client library optional](#712-client-library-optional)
-  - [8    CORS](#8-cors)
-    - [8.1    Client guidance](#81-client-guidance)
-    - [8.2    Service guidance](#82-service-guidance)
-  - [9    Collections](#9-collections)
-    - [9.1    Item keys](#91-item-keys)
-    - [9.2    Serialization](#92-serialization)
-    - [9.3    Collection URL patterns](#93-collection-url-patterns)
-    - [9.4    Big collections](#94-big-collections)
-    - [9.5    Changing collections](#95-changing-collections)
-    - [9.6    Sorting collections](#96-sorting-collections)
-    - [9.7    Filtering](#97-filtering)
-    - [9.8    Pagination](#98-pagination)
-    - [9.9    Compound collection operations](#99-compound-collection-operations)
-  - [10    Delta queries](#10-delta-queries)
-    - [10.1    Delta links](#101-delta-links)
-    - [10.2    Entity representation](#102-entity-representation)
-    - [10.3    Obtaining a delta link](#103-obtaining-a-delta-link)
-    - [10.4    Contents of a delta link response](#104-contents-of-a-delta-link-response)
-    - [10.5    Using a delta link](#105-using-a-delta-link)
-  - [11    JSON standardizations](#11-json-standardizations)
-    - [11.1    JSON formatting standardization for primitive types](#111-json-formatting-standardization-for-primitive-types)
-    - [11.2    Guidelines for dates and times](#112-guidelines-for-dates-and-times)
-    - [11.3    JSON serialization of dates and times](#113-json-serialization-of-dates-and-times)
-    - [11.4    Durations](#114-durations)
-    - [11.5    Intervals](#115-intervals)
-    - [11.6    Repeating intervals](#116-repeating-intervals)
-  - [12    Versioning](#12-versioning)
-    - [12.1    Versioning formats](#121-versioning-formats)
-    - [12.2    When to version](#122-when-to-version)
-    - [12.3    Definition of a breaking change](#123-definition-of-a-breaking-change)
-  - [13    Long running operations](#13-long-running-operations)
-    - [13.1    Resource based long running operations (RELO)](#131-resource-based-long-running-operations-relo)
-    - [13.2    Stepwise long running operations](#132-stepwise-long-running-operations)
-    - [13.3    Retention policy for operation results](#133-retention-policy-for-operation-results)
-  - [14    Push notifications via webhooks](#14-push-notifications-via-webhooks)
-    - [14.1    Scope](#141-scope)
-    - [14.2    Principles](#142-principles)
-    - [14.3    Types of subscriptions](#143-types-of-subscriptions)
-    - [14.4    Call sequences](#144-call-sequences)
-    - [14.5    Verifying subscriptions](#145-verifying-subscriptions)
-    - [14.6    Receiving notifications](#146-receiving-notifications)
-    - [14.7    Managing subscriptions programmatically](#147-managing-subscriptions-programmatically)
-    - [14.8    Security](#148-security)
-  - [15    Unsupported requests](#15-unsupported-requests)
-    - [15.1    Essential guidance](#151-essential-guidance)
-    - [15.2    Feature allow list](#152-feature-allow-list)
-  - [16     Appendix](#16-appendix)
-    - [16.1    Sequence diagram notes](#161-sequence-diagram-notes)
+  - [1 摘要](#1-摘要)
+  - [2 目录](#2-table-of-contents)
+  - [3 介绍](#3-introduction)
+    - [3.1 推荐读物](#31-recommended-reading)
+  - [4    指南解读](#4-interpreting-the-guidelines)
+    - [4.1    指南的应用](#41-application-of-the-guidelines)
+    - [4.2    已有服务指南和服务版本](#42-guidelines-for-existing-services-and-versioning-of-services)
+    - [4.3    语气用词](#43-requirements-language)
+    - [4.4    许可](#44-许可)
+  - [5    分类](#5-taxonomy)
+    - [5.1    错误](#51-errors)
+    - [5.2    故障](#52-faults)
+    - [5.3    耗时](#53-latency)
+    - [5.4    完成时间](#54-time-to-complete)
+    - [5.5    长久运行的API 故障](#55-long-running-api-faults)
+  - [6    客户端指南](#6-client-guidance)
+    - [6.1    忽略的规则](#61-ignore-rule)
+    - [6.2    变量排序规则](#62-variable-order-rule)
+    - [6.3    静默处理失败规则](#63-silent-fail-rule)
+  - [7    一致性的基础](#7-consistency-fundamentals)
+    - [7.1    URL 结构](#71-url-structure)
+    - [7.2    URL 长度](#72-url-length)
+    - [7.3    规范标示](#73-canonical-identifier)
+    - [7.4    支持的方法](#74-supported-methods)
+    - [7.5    标准的请求头部](#75-standard-request-headers)
+    - [7.6    标准的返回头部](#76-standard-response-headers)
+    - [7.7    自定义头部](#77-custom-headers)
+    - [7.8    指定头部作为请求参数](#78-specifying-headers-as-query-parameters)
+    - [7.9    PII 参数](#79-pii-parameters)
+    - [7.10   返回格式](#710-response-formats)
+    - [7.11   HTTP 状态码](#711-http-status-codes)
+    - [7.12   可选的客户端库](#712-client-library-optional)
+  - [8    跨域资源共享](#8-cors)
+    - [8.1    客户端指南](#81-client-guidance)
+    - [8.2    服务端指南](#82-service-guidance)
+  - [9    集合](#9-collections)
+    - [9.1    元素的键](#91-item-keys)
+    - [9.2    序列化](#92-serialization)
+    - [9.3    集合URL的模式](#93-collection-url-patterns)
+    - [9.4    大集合](#94-big-collections)
+    - [9.5    改变集合](#95-changing-collections)
+    - [9.6    排列集合](#96-sorting-collections)
+    - [9.7    过滤](#97-filtering)
+    - [9.8    分页](#98-pagination)
+    - [9.9    集合的混合操作](#99-compound-collection-operations)
+  - [10    Delta查询](#10-delta-queries)
+    - [10.1    Delta链接](#101-delta-links)
+    - [10.2    实体表示](#102-entity-representation)
+    - [10.3    获取delta链接](#103-obtaining-a-delta-link)
+    - [10.4    delta链接返回的内容](#104-contents-of-a-delta-link-response)
+    - [10.5    使用delta链接](#105-using-a-delta-link)
+  - [11    JSON 标准化](#11-json-standardizations)
+    - [11.1    原始类型的JSON格式化标准](#111-json-formatting-standardization-for-primitive-types)
+    - [11.2    日期和时间](#112-guidelines-for-dates-and-times)
+    - [11.3    日期和时间的JSON序列化](#113-json-serialization-of-dates-and-times)
+    - [11.4    持续](#114-durations)
+    - [11.5    间隔](#115-intervals)
+    - [11.6    重复的间隔](#116-repeating-intervals)
+  - [12    版本](#12-versioning)
+    - [12.1   版本格式](#121-versioning-formats)
+    - [12.2    版本定义时机](#122-when-to-version)
+    - [12.3    重大改变的定义](#123-definition-of-a-breaking-change)
+  - [13    长时间运行的操作](#13-long-running-operations)
+    - [13.1    资源为基础的长时间运行操作 (RELO)](#131-resource-based-long-running-operations-relo)
+    - [13.2    增量式的长时间运行的操作](#132-stepwise-long-running-operations)
+    - [13.3    操作结果的保留政策](#133-retention-policy-for-operation-results)
+  - [14    通过webhook推送通知](#14-push-notifications-via-webhooks)
+    - [14.1    作用域](#141-scope)
+    - [14.2    原则](#142-principles)
+    - [14.3    订阅类型](#143-types-of-subscriptions)
+    - [14.4    调用顺序](#144-call-sequences)
+    - [14.5    订阅验证](#145-verifying-subscriptions)
+    - [14.6    接收通知](#146-receiving-notifications)
+    - [14.7    以编程方式管理订阅](#147-managing-subscriptions-programmatically)
+    - [14.8    安全](#148-security)
+  - [15    未支持的请求](#15-unsupported-requests)
+    - [15.1    基本指南](#151-essential-guidance)
+    - [15.2    允许的特性列表](#152-feature-allow-list)
+  - [16     附录](#16-附录)
+    - [16.1    序列图](#161-sequence-diagram-notes)
   
 
 <!-- /TOC -->
 
-## 3 Introduction
+## 3 介绍
 Developers access most Microsoft Cloud Platform resources via HTTP interfaces.
 Although each service typically provides language-specific frameworks to wrap their APIs, all of their operations eventually boil down to HTTP requests.
 Microsoft must support a wide range of clients and services and cannot rely on rich frameworks being available for every development environment.
@@ -143,8 +144,8 @@ If you are new to RESTful design, here are some good resources:
 
 [REST in Practice][rest-in-practice] -- Book on the fundamentals of REST.
 
-## 4 Interpreting the guidelines
-### 4.1 Application of the guidelines
+## 4 指南解读
+### 4.1 指南的应用
 These guidelines are applicable to any REST API exposed publicly by Microsoft or any partner service.
 Private or internal APIs SHOULD also try to follow these guidelines because internal services tend to eventually be exposed publicly.
  Consistency is valuable to not only external customers but also internal service consumers, and these guidelines offer best practices useful for any service.
@@ -162,7 +163,7 @@ So if a service was written against version 1.0 of the guidelines, new APIs adde
 ### 4.3 Requirements language
 The keywords "MUST," "MUST NOT," "REQUIRED," "SHALL," "SHALL NOT," "SHOULD," "SHOULD NOT," "RECOMMENDED," "MAY," and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt). 
 
-### 4.4 License
+### 4.4 许可
 
 This work is licensed under the Creative Commons Attribution 4.0 International License.
 To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
@@ -1998,7 +1999,7 @@ Content-Type: application/json
 }
 ```
 
-## 16 Appendix
+## 16 附录
 ### 16.1 Sequence diagram notes
 All sequence diagrams in this document are generated using the WebSequenceDiagrams.com web site.
 To generate them, paste the text below into the web tool.

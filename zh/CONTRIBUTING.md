@@ -4,9 +4,9 @@ Microsoft REST API指南是整个Microsoft为设计一直风格的REST API而提
 根据此文档的指导进行反馈。请注意，这些仅仅是指南，而不是规定。请保持自己主见积极地提议来改进这个仓库的任何东西，包括此文档本身。
 
 请注意此工程是和[Contributor Code of Conduct][code-of-conduct]一起发布的。参与此工程你需要遵守以下条款。
-- [创建issues](#creating-issues)
-- [文档格式指南](#documentation-styleguide)
-- [Commit信息](#commit-messages)
+- [创建issues](#创建issues)
+- [文档格式指南](#文档格式指南)
+- [Commit信息](#Commit信息)
 - [Pull requests](#pull-requests)
 
 ## 创建issues
@@ -81,7 +81,7 @@ Content-Type: application/json
 - 首行使用72个字符或者更少
 - 引用issue和pull request
 
-## Pull Request
+## Pull Requests
 Pull Request作为重要的开源机制被开源贡献者们广泛的推广和接受。我们建议创建一个[topic branch][topic-branch]，然后发起一个针对`master`分支的pull request。获取更多指南，请参考[GitHub Flow Guide][github-flow-guide]。
 
 如果有必要，准备好响应你的pull request的反馈或者迭代。
