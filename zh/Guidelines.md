@@ -15,10 +15,10 @@ Rob Howard (ASG)             | Peter Torr  (OSG)                      | Chris Mu
 
 # Microsoft REST API 指南
 ## 1 摘要
-作为一个设计的原则，鼓励应用程序开发者通过RESTful的HTTP接口去获取资源。为了让追随Microsoft REST API指南的开发者有尽可能的优雅的使用体验，
-REST APIs应该保持一贯的设计原则，来提高易用性和更具有倡导性。
+作为一个设计的原则，鼓励应用程序开发者通过RESTful的HTTP接口去获取资源。为了让追随Microsoft REST API 指南的开发者有尽可能的优雅的使用体验，
+REST APIs 应该保持一贯的设计原则，来提高易用性和更具有倡导性。
 
-此文档建立了Microsoft REST APIs应该遵循的指南，使得RESTFUL的接口可以被一致的开发。
+此文档建立了Microsoft REST APIs 应该遵循的指南，使得RESTFUL的接口可以被一致的开发。
 
 
 ## 2 目录
@@ -27,7 +27,7 @@ REST APIs应该保持一贯的设计原则，来提高易用性和更具有倡�
 - [Microsoft REST API 指南 2.3](#microsoft-rest-api-guidelines-23)
   - [Microsoft REST API 指南工作组](#microsoft-rest-api-guidelines-working-group)
 - [Microsoft REST API Guidelines](#microsoft-rest-api-guidelines)
-  - [1 摘要](#1-只要)
+  - [1 摘要](#1-摘要)
   - [2 目录](#2-table-of-contents)
   - [3 介绍](#3-introduction)
     - [3.1 推荐读物](#31-recommended-reading)
@@ -36,11 +36,11 @@ REST APIs应该保持一贯的设计原则，来提高易用性和更具有倡�
     - [4.2    已有服务指南和服务版本](#42-guidelines-for-existing-services-and-versioning-of-services)
     - [4.3    语气用词](#43-requirements-language)
     - [4.4    许可](#44-许可)
-  - [5 分类](#5-taxonomy)
+  - [5    分类](#5-taxonomy)
     - [5.1    错误](#51-errors)
     - [5.2    故障](#52-faults)
     - [5.3    耗时](#53-latency)
-    - [5.4    Time to complete？](#54-time-to-complete)
+    - [5.4    完成时间](#54-time-to-complete)
     - [5.5    长久运行的API 故障](#55-long-running-api-faults)
   - [6    客户端指南](#6-client-guidance)
     - [6.1    忽略的规则](#61-ignore-rule)
@@ -66,7 +66,7 @@ REST APIs应该保持一贯的设计原则，来提高易用性和更具有倡�
     - [9.1    元素的键](#91-item-keys)
     - [9.2    序列化](#92-serialization)
     - [9.3    集合URL的模式](#93-collection-url-patterns)
-    - [9.4    大的集合](#94-big-collections)
+    - [9.4    大集合](#94-big-collections)
     - [9.5    改变集合](#95-changing-collections)
     - [9.6    排列集合](#96-sorting-collections)
     - [9.7    过滤](#97-filtering)
