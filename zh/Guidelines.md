@@ -212,26 +212,23 @@ API 的一致性不仅对外部消费者非常重要，对于内部服务的消�
 
 长期运行故障必须（MUST）作为故障汇总到总体可用性指标中。
 
-## 6 Client guidance
-To ensure the best possible experience for clients talking to a REST service, clients SHOULD adhere to the following best practices:
+## 6 客户端指南
+为了确保客户与 RESTFUL 服务交互获得最佳体验，客户应（SHOULD）遵守以下最佳实践：
 
-### 6.1 Ignore rule
-For loosely coupled clients where the exact shape of the data is not known before the call, if the server returns something the client wasn't expecting, the client MUST safely ignore it.
-  
-Some services MAY add fields to responses without changing versions numbers.
-Services that do so MUST make this clear in their documentation and clients MUST ignore unknown fields.
+### 6.1 忽略规则
+对于松散耦合的客户端，其中在调用之前数据的确切形状是未知的，如果服务器返回客户端不期望的东西，则客户端必须安全地忽略它。
 
-### 6.2 Variable order rule
-Clients MUST NOT rely on the order in which data appears in JSON service responses.
-For example, clients SHOULD be resilient to the reordering of fields within a JSON object.
-When supported by the service, clients MAY request that data be returned in a specific order.
-For example, services MAY support the use of the _$orderBy_ querystring parameter to specify the order of elements within a JSON array.
-Services MAY also explicitly specify the ordering of some elements as part of the service contract.
-For example, a service MAY always return a JSON object's "type" information as the first field in an object to simplify response parsing on the client.
-Clients MAY rely on ordering behavior explicitly identified by the service.
+某些服务可以（MAY）在不更改版本号的情况下向响应添加字段。 这样做的服务必须（MUST）在其文档中明确说明，客户端必须（MUST）忽略未知字段。
 
-### 6.3 Silent fail rule
-Clients requesting OPTIONAL server functionality (such as optional headers) MUST be resilient to the server ignoring that particular functionality.
+### 6.2 变量排序规则
+客户不能（MUST NOT）依赖服务响应的 JOSN 数据的显示的顺序。例如，客户端应该（SHOULD）对JSON对象中的字段重新排序具有容错性。
+
+当服务支持时，客户端可以（MAY）请求以特定顺序返回数据。例如，服务可以支持使用 orderBy 的请求参数来指定JSON数据中元素的顺序。
+
+服务还可以（MAY）明确地指定元素的顺序。例如，服务可以（MAY）始终返回JSON对象的“类型”信息作为对象中的第一个字段，以简化客户端上的响应解析。客户端可以（MAY）依赖于由服务显式标识的排序行为。
+
+### 6.3 静默处理失败规则
+请求可选服务器功能（如 Header 里的 OPTIONS 字段）的客户端必须（MUST）对服务器具有容错性，如果服务端不支持，那么应该可以安全的忽略该特定功能。
 
 ## 7 Consistency fundamentals
 ### 7.1 URL structure
