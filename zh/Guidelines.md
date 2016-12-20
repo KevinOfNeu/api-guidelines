@@ -176,36 +176,41 @@ API 的一致性不仅对外部消费者非常重要，对于内部服务的消�
 本作品根据知识共享署名4.0国际许可协议进行许可。
 要查看此许可证的副本，请访问http://creativecommons.org/licenses/by/4.0/或发送信件到Creative Commons，PO Box 1866，Mountain View，CA 94042，USA。
 
-## 5 Taxonomy
-As part of onboarding to Microsoft REST API Guidelines, services MUST comply with the taxonomy defined below.
+## 5 分类
+作为符合 Microsoft REST API 准则的一份子，服务必须（MUST）符合以下定义的分类。
 
-### 5.1 Errors
-Errors, or more specifically Service Errors, are defined as a client passing invalid data to the service and the service _correctly_ rejecting that data.
-Examples include invalid credentials, incorrect parameters, unknown version IDs, or similar.
-These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data.
+### 5.1 错误
+错误（或更具体地说服务错误）被定义为客户端向服务传递无效数据，服务 _正确_ 拒绝该数据。
 
-Errors do _not_ contribute to overall API availability.
+示例包括无效凭据，不正确的参数，未知的版本ID或类似信息。
 
-### 5.2 Faults
-Faults, or more specifically Service Faults, are defined as the service failing to correctly return in response to a valid client request.
-These are generally "5xx" HTTP error codes.
+这些通常是“4xx”HTTP错误代码，并且是客户端传递不正确或无效数据的结果。
 
-Faults _do_ contribute to the overall API availability.
+错误 _不会_ 影响总体API可用性。
 
-Calls that fail due to rate limiting or quota failures MUST NOT count as faults.
-Calls that fail as the result of a service fast-failing requests (often for its own protection) do count as faults.
+### 5.2 故障
+故障，或更具体地，服务故障，被定义为服务无法正确返回以响应有效的客户端请求。这些通常是“5xx”HTTP错误代码。
 
-### 5.3 Latency
-Latency is defined as how long a particular API call takes to complete, measured as closely to the client as possible.
-This metric applies to both synchronous and asynchronous APIs in the same way.
-For long running calls, the latency is measured on the initial request and measures how long that call (not the overall operation) takes to complete.
+故障确实 _有助于_ 总体API可用性。
 
-### 5.4 Time to complete
-Services that expose long operations MUST track "Time to Complete" metrics around those operations.
+由于速率限制或配额故障而失败的呼叫不得(MUST NOT)计为故障。
 
-### 5.5 Long running API faults
-For a Long Running API, it's possible for both the initial request to begin the operation and the request to retrieve the results to technically work (each passing back a 200), but for the underlying operation to have failed.
-Long Running faults MUST roll up as Faults into the overall Availability metrics.
+由于服务快速失败请求（通常为了自身的保护）而失败的调用会计为故障。
+
+### 5.3 耗时
+耗时定义为特定API调用完成的时间，尽可能接近客户端的计算结果。
+
+此指标同样适用于同步和异步API。
+
+对于长时间的调用，耗时是根据初始请求测量的，并测量调用（而不是整个操作）完成所需的时间。
+
+### 5.4 完成时间
+具体长操作（更具体的讲是复杂操作）的服务必须（MUST）跟踪这些操作的“完成时间”指标。
+
+### 5.5 长时间运行的 API 故障
+对于需要长时间运行的API，在技术上，可能初始请求开始操作和获取结果的请求正常工作（每个返回200），但是底层操作失败。
+
+长期运行故障必须（MUST）作为故障汇总到总体可用性指标中。
 
 ## 6 Client guidance
 To ensure the best possible experience for clients talking to a REST service, clients SHOULD adhere to the following best practices:
