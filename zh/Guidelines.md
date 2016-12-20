@@ -148,27 +148,33 @@ Microsoft 必须提供对各种客户端和服务的支持，而不能依赖于�
 
 ## 4 指南解读
 ### 4.1 指南的应用
-These guidelines are applicable to any REST API exposed publicly by Microsoft or any partner service.
-Private or internal APIs SHOULD also try to follow these guidelines because internal services tend to eventually be exposed publicly.
- Consistency is valuable to not only external customers but also internal service consumers, and these guidelines offer best practices useful for any service.
+本指南对 Microsoft 或者合作伙伴的服务的任何开放的 REST API 都适用。
 
-There are legitimate reasons for exemption from these guidelines.
-Obviously a REST service that implements or must interoperate with some externally defined REST API must be compatible with that API and not necessarily these guidelines.
-Some services MAY also have special performance needs that require a different format, such as a binary protocol.
+私有的或者内部的 API 也应该尝试去遵守本指南，因为内部服务最终都有可能开放出来。
 
-### 4.2 Guidelines for existing services and versioning of services
-We do not recommend making a breaking change to a service that pre-dates these guidelines simply for compliance sake.
-The service SHOULD try to become compliant at the next version release when compatibility is being broken anyway.
-When a service adds a new API, that API SHOULD be consistent with the other APIs of the same version.
-So if a service was written against version 1.0 of the guidelines, new APIs added incrementally to the service SHOULD also follow version 1.0. The service can then upgrade to align with the latest version of the guidelines at the service's next major release.
+API 的一致性不仅对外部消费者非常重要，对于内部服务的消费者也同样重要。本指南提供了对于任何服务都适用的最佳实践。
 
-### 4.3 Requirements language
-The keywords "MUST," "MUST NOT," "REQUIRED," "SHALL," "SHALL NOT," "SHOULD," "SHOULD NOT," "RECOMMENDED," "MAY," and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt). 
+当然也有一些合理的理由不遵守本指南。显然，一些提供 REST 接口的服务实现了外部的 REST API 标准或者需要与它保持兼容，而不是本指南。还有一些服务对于性能有特殊要求，接口需要适用其他合适传输数据，例如二进制协议。
+
+### 4.2 先有服务和服务演进指南
+我们不建议为了符合指南规范对现在已有的服务做出重大的更改。
+
+当决定服务不在兼容老版本的时候，那下一版本发布的服务应该遵守指南的约定。
+
+当新添加一个 API 的时候，那么这个 API 应该与其他相同版本的 API 保持一致的风格。
+
+如果当前的服务遵守的是 1.0 版本的指南，当添加新的 API 的时候，也同样遵守 1.0 版本的指南。当服务的下一个大版本发布的时候，统一修改 API 使其遵循指南的最新版本。
+
+*译者注*：最后一句的意思是，当本指南版本有更新的版本时候才会考虑。
+
+### 4.3 祈使语气
+
+本文档里出现的关键词 "MUST," "MUST NOT," "REQUIRED," "SHALL," "SHALL NOT," "SHOULD," "SHOULD NOT," "RECOMMENDED," "MAY," 和 "OPTIONAL" 的具体含义可以参考 [RFC 2119文档](https://www.ietf.org/rfc/rfc2119.txt);
 
 ### 4.4 许可
 
-This work is licensed under the Creative Commons Attribution 4.0 International License.
-To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+本作品根据知识共享署名4.0国际许可协议进行许可。
+要查看此许可证的副本，请访问http://creativecommons.org/licenses/by/4.0/或发送信件到Creative Commons，PO Box 1866，Mountain View，CA 94042，USA。
 
 ## 5 Taxonomy
 As part of onboarding to Microsoft REST API Guidelines, services MUST comply with the taxonomy defined below.
