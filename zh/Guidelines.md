@@ -230,286 +230,296 @@ API 的一致性不仅对外部消费者非常重要，对于内部服务的消�
 ### 6.3 静默处理失败规则
 请求可选服务器功能（如 Header 里的 OPTIONS 字段）的客户端必须（MUST）对服务器具有容错性，如果服务端不支持，那么应该可以安全的忽略该特定功能。
 
-## 7 Consistency fundamentals
-### 7.1 URL structure
-Humans SHOULD be able to easily read and construct URLs.
+## 7 一致性的基础
+### 7.1 URL 结构
+人类应该（SHOULD）能够轻松地阅读和构造 URL 。
 
-This facilitates discovery and eases adoption on platforms without a well-supported client library.
+这有助于在没有得到良好支持的客户端库的平台上发现和轻松采用。
 
-An example of a well-structured URL is:
+一个结构良好的 URL 示例：
 
 ```
 https://api.contoso.com/v1.0/people/jdoe@contoso.com/inbox
 ```
 
-An example URL that is not friendly is:
+一个不好的 URL 示例如下：
 
 ```
 https://api.contoso.com/EWS/OData/Users('jdoe@microsoft.com')/Folders('AAMkADdiYzI1MjUzLTk4MjQtNDQ1Yy05YjJkLWNlMzMzYmIzNTY0MwAuAAAAAACzMsPHYH6HQoSwfdpDx-2bAQCXhUk6PC1dS7AERFluCgBfAAABo58UAAA=')
 ```
-
-A frequent pattern that comes up is the use of URLs as values.
-Services MAY use URLs as values.
-For example, the following is acceptable:
+一种常见的模式是使用 URL 作为值。服务可以（MAY）使用 URL 作为值。
+例如，如下的 URL 是可以被接受的：
 
 ```
 https://api.contoso.com/v1.0/items?url=https://resources.contoso.com/shoes/fancy
 ```
 
-### 7.2 URL length
-The HTTP 1.1 message format, defined in RFC 7230, in section [3.1.1][rfc-7230-3-1-1], defines no length limit on the Request Line, which includes the target URL.
-From the RFC:
+### 7.2 URL 长度
+在RFC 7230的[3.1.1] [rfc-7230-3-1-1]部分的HTTP 1.1消息格式定义了请求行的长度没有限制，包括目标URL。
 
-> HTTP does not place a predefined limit on the length of a
-   request-line. [...] A server that receives a request-target longer than any URI it wishes to parse MUST respond
-   with a 414 (URI Too Long) status code.
+RFC：
 
-Services that can generate URLs longer than 2,083 characters MUST make accommodations for the clients they wish to support.
-Here are some sources for determining what target clients support:
+> HTTP不会对请求行的长度设置预定义的限制。 [...] 如果服务端接收到超过自身处理处理的长 URI，它必须（MUST）用414（URI Too Long）状态码响应。
+
+可生成长度超过2,083个字符的 URLs 的服务必须(MUST)为他们希望支持的客户提供方便。以下是确定目标客户端是否支持的一些资料：
 
  * [http://stackoverflow.com/a/417184](http://stackoverflow.com/a/417184)
  * [https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/](https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/)
  
-Also note that some technology stacks have hard and adjustable url limits, so keep this in mind as you design your services.
+还要注意，一些技术栈具有强制或者可调节的 url 限制，因此在设计您的服务时记住这一点。
 
-### 7.3 Canonical identifier
-In addition to friendly URLs, resources that can be moved or be renamed SHOULD expose a URL that contains a unique stable identifier.
-It MAY be necessary to interact with the service to obtain a stable URL from the friendly name for the resource, as in the case of the "/my" shortcut used by some services.
+### 7.3 规范标示符
+除了友好的 URL, 可以移动或重命名的资源应该(应该)暴露一个包含唯一稳定标识符的URL。
 
-The stable identifier is not required to be a GUID.
+可能（MAY）需要与服务交互，并通过资源的可读性较好的名字来获取一个稳定的 URL，就像一些服务里 "/my" 的用法一样。
 
-An example of a URL containing a canonical identifier is:
+这个文档的标识符不一定是一个 GUID（全局唯一标识符）。
+
+一个包含规范标识符的 URL 示例如下：
 
 ```
 https://api.contoso.com/v1.0/people/7011042402/inbox
 ```
 
-### 7.4 Supported methods
-Operations MUST use the proper HTTP methods whenever possible, and operation idempotency MUST be respected.
-HTTP methods are frequently referred to as the HTTP verbs.
-The terms are synonymous in this context, however the HTTP specification uses the term method.
+### 7.4 支持的方法
+操作必须（MUST）尽可能使用合适的 HTTP 方法，并且必须（MUST）遵守操作幂等。
 
-Below is a list of methods that Microsoft REST services SHOULD support.
-Not all resources will support all methods, but all resources using the methods below MUST conform to their usage.
+HTTP方法经常被称为HTTP动词。
 
-Method  | Description                                                                                                                | Is Idempotent
+这些术语在本上下文中是同义的，但是HTTP规范使用 “方法” 术语。
+
+下面是 Microsoft REST 服务应该支持的方法的列表。并非所有资源都支持所有方法，但是所有使用以下方法的资源必须符合其用法。
+
+方法  | 描述                                                                                                                | 是否幂等
 ------- | -------------------------------------------------------------------------------------------------------------------------- | -------------
-GET     | Return the current value of an object                                                                                      | True
-PUT     | Replace an object, or create a named object, when applicable                                                               | True
-DELETE  | Delete an object                                                                                                           | True
-POST    | Create a new object based on the data provided, or submit a command                                                        | False
-HEAD    | Return metadata of an object for a GET response. Resources that support the GET method MAY support the HEAD method as well | True
-PATCH   | Apply a partial update to an object                                                                                        | False
-OPTIONS | Get information about a request; see below for details.                                                                    | True
+GET     | 返回对象的当前值                                                                                      | True
+PUT     | 替换对象或创建命名对象（如果适用）                                                               | True
+DELETE  | 删除一个对象                                                                                                        | True
+POST    | 基于提供的数据创建一个新对象，或提交命令                                                        | False
+HEAD    | 返回GET响应的对象的元数据。 支持GET方法的资源也应（MAY）支持HEAD方法 | True
+PATCH   | 对对象应用部分更新                                                                                        | False
+OPTIONS | 获取有关请求的信息; 详情见下文                                                               | True
 
-<small>Table 1</small>
+<small>表 1</small>
+
+*译者注：* 幂等接口可以认为是这样一类接口，调用传参一样的话，返回值也都一样。有点类似纯函数的概念。
 
 #### 7.4.1 POST
-POST operations SHOULD support the Location response header to specify the location of any created resource that was not explicitly named, via the Location header.
+POST操作应该（SHOULD）支持 Location响 应头，以通过 Location 头指定任何未显式命名的已创建资源的位置。
 
-As an example, imagine a service that allows creation of hosted servers, which will be named by the service:
+例如，假设一个允许创建托管服务器的服务，它将由如下服务 URL 命名：
 
 ```http
 POST http://api.contoso.com/account1/servers
 ```
 
-The response would be something like:
+响应将类似：
 
 ```http
 201 Created
 Location: http://api.contoso.com/account1/servers/server321
 ```
 
-Where "server321" is the service-allocated server name.
+其中“server321”是服务分配的服务器名称。
 
-Services MAY also return the full metadata for the created item in the response.
+服务还可以（MAY）在响应中返回创建的项目的完整元数据。
 
 #### 7.4.2 PATCH
-PATCH has been standardized by IETF as the method to be used for updating an existing object incrementally (see [RFC 5789][rfc-5789]).
-Microsoft REST API Guidelines compliant APIs SHOULD support PATCH.
+PATCH已经被 IETF 标准化为用于增量更新现有对象的方法（参见[RFC 5789] [rfc-5789]）。
+符合 Microsoft REST API 准则的API应支持 PATCH。
 
-#### 7.4.3 Creating resources via PATCH (UPSERT semantics)
-Services that allow callers to specify key values on create SHOULD support UPSERT semantics, and those that do MUST support creating resources using PATCH.
-Because PUT is defined as a complete replacement of the content, it is dangerous for clients to use PUT to modify data.
-Clients that do not understand (and hence ignore) properties on a resource are not likely to provide them on a PUT when trying to update a resource, hence such properties MAY be inadvertently removed.
-Services MAY optionally support PUT to update existing resources, but if they do they MUST use replacement semantics (that is, after the PUT, the resource's properties MUST match what was provided in the request, including deleting any server properties that were not provided).
+#### 7.4.3 通过PATCH创建资源（UPSERT语义）
+允许调用者在创建时指定键值的服务应(SHOULD)支持UPSERT语义，以及那些必须（MUST）支持使用PATCH创建资源的服务。
+因为 PUT 被定义为内容的完全替换，所以客户端使用PUT修改数据是很危险的。
 
-Under UPSERT semantics, a PATCH call to a nonexistent resource is handled by the server as a "create," and a PATCH call to an existing resource is handled as an "update." To ensure that an update request is not treated as a create or vice-versa, the client MAY specify precondition HTTP headers in the request.
-The service MUST NOT treat a PATCH request as an insert if it contains an If-Match header and MUST NOT treat a PATCH request as an update if it contains an If-None-Match header with a value of "*".
+不了解（因此导致忽略）资源上的属性的客户端不太可能在尝试更新资源时在PUT上提供它们的值，因此这些属性可能（MAY）会无意中被删除。
 
-If a service does not support UPSERT, then a PATCH call against a resource that does not exist MUST result in an HTTP "409 Conflict" error.
+服务可以(MAY)支持PUT来更新现有资源，但是如果他们这样做，它们必须(MUST)使用替换语义（即在PUT之后，资源的属性必须(MUST) 匹配请求中提供的属性，包括删除未提供的任何服务器属性）。
 
-#### 7.4.4 Options and link headers
-OPTIONS allows a client to retrieve information about a resource, at a minimum by returning the Allow header denoting the valid methods for this resource.
+在UPSERT语义下，对不存在的资源的PATCH调用由服务器处理为“创建”，对已存在资源的PATCH调用被处理为“更新”。 为了确保更新请求不被视为创建或反之亦然，客户端可以在请求头中指定前置条件。
 
-In addition, services SHOULD include a Link header (see [RFC 5988][rfc-5988]) to point to documentation for the resource in question:
+如果一个PATCH请求包含一个 If-Match 头，服务不能（MUST NOT）将PATCH请求作为一个新建来处理。如果包含一个值为“*”的If-None-Match头，服务不能（MUST NOT）将PATCH请求作为一个更新来处理。
+
+如果服务不支持UPSERT，则对不存在的资源的PATCH调用必须抛出一个 HTTP "409 Conflict" 的错误。
+
+#### 7.4.4 Options 和 link headers
+OPTIONS 允许客户端检索有关资源的信息，服务通过返回 Allow 响应头来表明资源支持的有效方法，将检索的次数降到最低。
+
+此外，服务应该（SHOULD）包括一个 Link 头（参见[RFC 5988] [rfc-5988]），以指向相关资源的文档：
 
 ```http
 Link: <{help}>; rel="help"
 ```
 
-Where {help} is the URL to a documentation resource.
+其中{help}是文档资源的URL。
 
-For examples on use of OPTIONS, see [preflighting CORS cross-domain calls][cors-preflight].
+有关使用OPTIONS的示例，请参见[预检CORS跨域调用] [cors-preflight]。
 
-### 7.5 Standard request headers
-The table of request headers below SHOULD be used by Microsoft REST API Guidelines services.
-Using these headers is not mandated, but if used they MUST be used consistently.
+### 7.5 标准请求头
+Microsoft REST API 指南服务将使用下面的请求 Header 表。使用这些 Header 不是强制的，但如果使用它们必须一致使用。
 
-All header values MUST follow the syntax rules set forth in the specification where the header field is defined.
-Many HTTP headers are defined in [RFC7231][rfc-7231], however a complete list of approved headers can be found in the [IANA Header Registry][IANA-headers]."
+所有请求头部的值必须遵循规范中规定的语法规则，其中定义了头部字段。
 
-Header                            | Type                                  | Description
+许多HTTP头在[RFC7231] [rfc-7231]中定义，但是可以在[IANA头文件注册表] [IANA-headers]中找到已批准头的完整列表。
+
+
+
+Header                            | 类型                                  | 描述
 --------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Authorization                     | String                                           | Authorization header for the request
-Date                              | Date                                             | Timestamp of the request, based on the client's clock, in [RFC 5322][rfc-5322-3-3] date and time format.  The server SHOULD NOT make any assumptions about the accuracy of the client's clock.  This header MAY be included in the request, but MUST be in this format when supplied.  Greenwich Mean Time (GMT) MUST be used as the time zone reference for this header when it is provided.  For example: `Wed, 24 Aug 2016 18:41:30 GMT`.  Note that GMT is exactly equal to UTC (Coordinated Universal Time) for this purpose.
-Accept                            | Content type                                     | The requested content type for the response such as: <ul><li>application/xml</li><li>text/xml</li><li>application/json</li><li>text/javascript (for JSONP)</li></ul>Per the HTTP guidelines, this is just a hint and responses MAY have a different content type, such as a blob fetch where a successful response will just be the blob stream as the payload. For services following OData, the preference order specified in OData SHOULD be followed.
-Accept-Encoding                   | Gzip, deflate                                    | REST endpoints SHOULD support GZIP and DEFLATE encoding, when applicable. For very large resources, services MAY ignore and return uncompressed data.
-Accept-Language                   | "en", "es", etc.                                 | Specifies the preferred language for the response. Services are not required to support this, but if a service supports localization it MUST do so through the Accept-Language header.
-Accept-Charset                    | Charset type like "UTF-8"                        | Default is UTF-8, but services SHOULD be able to handle ISO-8859-1.
-Content-Type                      | Content type                                     | Mime type of request body (PUT/POST/PATCH)
-Prefer                            | return=minimal, return=representation            | If the return=minimal preference is specified, services SHOULD return an empty body in response to a successful insert or update. If return=representation is specified, services SHOULD return the created or updated resource in the response. Services SHOULD support this header if they have scenarios where clients would sometimes benefit from responses, but sometimes the response would impose too much of a hit on bandwidth.
-If-Match, If-None-Match, If-Range | String                                           | Services that support updates to resources using optimistic concurrency control MUST support the If-Match header to do so. Services MAY also use other headers related to ETags as long as they follow the HTTP specification.
+Authorization                     | String                                           | 请求的授权信息
+Date                              | Date                                             | 请求的时间戳记，基于客户端的时钟，在[RFC 5322] [rfc-5322-3-3]日期和时间格式。 服务器不应该对客户端时钟的准确性做任何假设。 此 Header 可以包含在请求中，但在提供时必须采用此格式。 格林威治标准时间（GMT）必须在提供时用作此 Header 时区参考。 例如：'Wed，24 Aug 2016 18:41:30 GMT`。 请注意，GMT 与 UTC（协调世界时）一样被用于此目的。
+Accept                            | Content type                                     | 客户端请求的响应内容类型，例如：<ul> <li> application/xml </li> <li> text/xml </li> <li> application/json </li> <li> text/javascript(for JSONP）</li> </ul>根据HTTP指南，这只是一个提示，响应可能有不同的内容类型，例如blob fetch，其中成功的响应将只是blob流作为有效载荷。 对于遵循 OData 的服务，应遵循 OData 中指定的优先级顺序。
+Accept-Encoding                   | Gzip, deflate                                    | REST端应支持GZIP和DEFLATE编码（如果适用）。 对于非常大的资源，服务可以忽略并返回未压缩的数据。
+Accept-Language                   | "en", "es", etc.                                 | 指定响应的首选语言。 服务不需要支持这个，但是如果一个服务支持本地化，它必须(MUST)通过Accept-Language头来这样做。
+Accept-Charset                    | Charset type like "UTF-8"                        | 默认是UTF-8，但服务应该能(SHOULD)够处理ISO-8859-1。
+Content-Type                      | Content type                                     | 请求正文的Mime类型（PUT / POST / PATCH）
+Prefer                            | return=minimal, return=representation            | 如果指定了return = minimal，那么服务应该（SHOULD）在成功的插入或更新后返回一个空的 Body。 如果指定了return = representation，那么服务应该返回响应中创建或更新的资源。 如果有场景，客户端有时会从响应中获益，那么服务应该支持这个头部，但有时响应将施加太多的带宽上的压力。
+If-Match, If-None-Match, If-Range | String                                           | 通过使用乐观并发控制的支持资源更新的服务必须（MUST）支持If-Match头字段。 服务也可以（MAY）使用与ETag相关的其他头字段，只要它们遵循HTTP规范。
 
-### 7.6 Standard response headers
-Services SHOULD return the following response headers, except where noted in the "required" column.
+### 7.6 标准响应头
+服务应（SHOULD）返回以下响应头，除非在“必需”列中注明。
 
-Response Header    | Required                                      | Description
+响应头    | 是否必须                                      | 描述
 ------------------ | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Date               | All responses                                 | Timestamp the response was processed, based on the server's clock, in [RFC 5322][rfc-5322-3-3] date and time format.  This header MUST be included in the response.  Greenwich Mean Time (GMT) MUST be used as the time zone reference for this header.  For example: `Wed, 24 Aug 2016 18:41:30 GMT`. Note that GMT is exactly equal to UTC (Coordinated Universal Time) for this purpose.
-Content-Type       | All responses                                 | The content type
-Content-Encoding   | All responses                                 | GZIP or DEFLATE, as appropriate
-Preference-Applied | When specified in request                     | Whether a preference indicated in the Prefer request header was applied
-ETag               | When the requested resource has an entity tag | The ETag response-header field provides the current value of the entity tag for the requested variant. Used with If-Match, If-None-Match and If-Range to implement optimistic concurrency control.
+Date               | All responses                                 | 基于服务器时钟，以RFC 5322日期和时间格式处理响应的时间戳。 此报头必须包含在响应中。 格林威治标准时间（GMT）必须（MUST）用作此 Header 的时区参考。 例如：Wed，24 Aug 2016 18:41:30 GMT。 请注意，GMT 与 UTC（协调世界时）一样被用于此目的。
+Content-Type       | All responses                                 | 响应内容类型
+Content-Encoding   | All responses                                 | GZIP或DEFLATE
+Preference-Applied | 当 Request 被指定时                     | 是否应用了在Prefer请求头中指示的首选项
+ETag               | 当请求的资源具有实体标签时 | ETag响应头字段提供所请求变量的实体标签的当前值。 与If-Match，If-None-Match和If-Range一起使用，以实现乐观并发控制。
 
-### 7.7 Custom headers
-Custom headers MUST NOT be required for the basic operation of a given API.
+### 7.7 自定义头信息
+对于给定API的基本操作，不得要求（MUST NOT）自定义 Header。
 
-Some of the guidelines in this document prescribe the use of nonstandard HTTP headers.
-In addition, some services MAY need to add extra functionality, which is exposed via HTTP headers.
-The following guidelines help maintain consistency across usage of custom headers.
+本文档中的一些准则规定使用非标准HTTP头。
 
-Headers that are not standard HTTP headers MUST have one of two formats:
+此外，一些服务可能需要添加额外的功能，这是通过HTTP头暴露出来。
 
-1. A generic format for headers that are registered as "provisional" with IANA ([RFC 3864][rfc-3864])
-2. A scoped format for headers that are too usage-specific for registration
+以下指南有助于在使用自定义标头时保持一致性。
 
-These two formats are described below.
+不是标准HTTP标头的标头必须（MUST）采用以下两种格式之一：
 
-### 7.8 Specifying headers as query parameters
-Some headers pose challenges for some scenarios such as AJAX clients, especially when making cross-domain calls where adding headers MAY not be supported.
-As such, some headers MAY be accepted as Query Parameters in addition to headers, with the same naming as the header:
+1. 用IANA注册为“临时”的头的通用格式（[RFC 3864] [rfc-3864]）
+2. 用于注册用途的 Header 的作用域格式
 
-Not all headers make sense as query parameters, including most standard HTTP headers.
+这两种格式会在下文详细描述。
 
-The criteria for considering when to accept headers as parameters are:
+### 7.8 将头指定为查询参数
+有些 Header 对于某些场景（例如AJAX客户端）提出了挑战，特别是在进行跨域调用时，可能不支持添加 Header。
+因此，除了头之外，一些头可以（MAY）被接受为查询参数，参数名字具有与头相同的命名：
 
-1. Any custom headers MUST be also accepted as parameters.
-2. Required standard headers MAY be accepted as parameters.
-3. Required headers with security sensitivity (e.g., Authorization header) MIGHT NOT be appropriate as parameters; the service owner SHOULD evaluate these on a case-by-case basis.
+并非所有标头都是查询参数，包括大多数标准HTTP标头。
 
-The one exception to this rule is the Accept header.
-It's common practice to use a scheme with simple names instead of the full functionality described in the HTTP specification for Accept.
+考虑何时接受头作为参数的标准是：
 
-### 7.9 PII parameters
-Consistent with their organization's privacy policy, clients SHOULD NOT transmit personally identifiable information (PII) parameters in the URL (as part of path or query string) because this information can be inadvertently exposed via client, network, and server logs and other mechanisms.
+1. 任何自定义头必须也必须（MUST）被接受为参数。
+2. 必须接受的标准头也可以（MAY）作为参数。
+3. 所需的具有安全敏感性的头（例如，授权头信息）可能不（MIGHT NOT）适合作为参数; 服务所有者应该根据具体情况评估这些。
 
-Consequently, a service SHOULD accept PII parameters transmitted as headers.
+这个规则的一个例外是Accept头。
 
-However, there are many scenarios where the above recommendations cannot be followed due to client or software limitations.
-To address these limitations, services SHOULD also accept these PII parameters as part of the URL consistent with the rest of these guidelines.
+通常的做法是使用具有简单名称的方案，而不是用于Accept的HTTP规范中描述的完整功能。
 
-Services that accept PII parameters -- whether in the URL or as headers -- SHOULD be compliant with privacy policy specified by their organization's engineering leadership.
-This will typically include recommending that clients prefer headers for transmission and implementations adhere to special precautions to ensure that logs and other service data collection are properly handled.
+### 7.9 PII （Personal Identification Information）参数
+根据其组织的隐私政策，客户端不应（SHOULD NOT）在URL中（作为路径或查询字符串的一部分）传输个人身份信息（PII）参数，因为此信息可能会通过客户端，网络和服务器日志和其他机制无意中显示。
 
-### 7.10 Response formats
-For organizations to have a successful platform, they must serve data in formats developers are accustomed to using, and in consistent ways that allow developers to handle responses with common code.
+因此，服务应该（SHOULD）接受作为报头发送的PII参数。
 
-Web-based communication, especially when a mobile or other low-bandwidth client is involved, has moved quickly in the direction of JSON for a variety of reasons, including its tendency to be lighter weight and its ease of consumption with JavaScript-based clients.
+然而，在许多情况下，由于客户端或软件的限制，上述建议不能被遵循。为了解决这些限制，服务应该（SHOULD）也接受这些PII参数作为URL的一部分与本指南的其余部分一致。
 
-JSON property names SHOULD be camelCased.
+接受PII参数的服务（无论是在网址中还是作为 Header）都应(SHOULD)符合其组织工程领导层指定的隐私权政策。
 
-Services SHOULD provide JSON as the default encoding.
+这通常包括建议客户端用于传输 PII 的报头，并且实施特别的预防措施以确保日志和其他服务数据收集被正确处理。
 
-#### 7.10.1 Clients-specified response format
-In HTTP, response format SHOULD be requested by the client using the Accept header.
-This is a hint, and the server MAY ignore it if it chooses to, even if this isn't typical of well-behaved servers.
-Clients MAY send multiple Accept headers and the service MAY choose one of them.
+### 7.10 响应格式
+为了使组织拥有成功的平台，它们必须以开发人员习惯使用的格式提供数据，并以一致的方式允许开发人员使用通用代码处理响应。
 
-The default response format (no Accept header provided) SHOULD be application/json, and all services MUST support application/json.
+基于Web的通信，特别是当涉及移动或其他低带宽客户端时，由于各种原因已经朝着JSON的方向快速发展，包括其基于JavaScript的客户端的更轻重量和易于消费的倾向。
 
-Accept Header    | Response type                      | Notes
+JSON 属性名应该（SHOULD）是驼峰风格的。
+
+服务应该（SHOULD）提供 JSON 作为默认编码格式。
+
+#### 7.10.1 客户端指定的响应格式
+在 HTTP 中，客户端应该使用 Accept 头来请求响应数据格式。这是一个提示，并且服务器可以选择性的忽略它，即使这不是典型的良好的服务器。
+
+客户端可以（MAY）发送多个 Accept 头，服务可以选择其中之一。
+
+默认的响应格式（没有提供 Accept 头）应该（SHOULD）是 application/json，所有的服务必须（MUST）支持 application/json。
+
+
+Accept Header    | Response type                      | 备注
 ---------------- | ---------------------------------- | -------------------------------------------
-application/json | Payload SHOULD be returned as JSON | Also accept text/javascript for JSONP cases
+application/json | 有效载荷应该作为JSON返回 | 对于 JSONP 也接受 text/javascript 格式
 
 ```http
 GET https://api.contoso.com/v1.0/products/user
 Accept: application/json
 ```
 
-#### 7.10.2 Error condition responses
-For nonsuccess conditions, developers SHOULD be able to write one piece of code that handles errors consistently across different Microsoft REST API Guidelines services.
-This allows building of simple and reliable infrastructure to handle exceptions as a separate flow from successful responses.
-The following is based on the OData v4 JSON spec.
-However, it is very generic and does not require specific OData constructs.
-APIs SHOULD use this format even if they are not using other OData constructs.
+#### 7.10.2 错误情况下的响应
+对于非成功条件，开发人员应该能够编写统一逻辑来处理跨不同 Microsoft REST API 准则服务的错误。
+这允许构建简单可靠的基础设施作为区别于成功响应的单独流程来处理异常。
+以下基于OData v4 JSON 规范。
+然而，它是非常通用的，不需要特定的 OData 结构。
+API 应该（SHOULD）使用这种格式，即使他们没有使用其他 OData 结构
 
-The error response MUST be a single JSON object.
-This object MUST have a name/value pair named "error." The value MUST be a JSON object.
+错误的响应必须（MUST）使用单个 JSON 对象。
+该对象必须（MUST）有一个键值对，键命名为 “error”, 值必须（MUST）是一个 JSON 对象。
 
-This object MUST contain name/value pairs with the names "code" and "message," and it MAY contain name/value pairs with the names "target," "details" and "innererror."
+这个对象必须（MUST）包含名字为 “code” 和 “message“ 的键值对，也可以（MAY) 包含名字为 ”target“，”detail“ 或者 ”intererror“ 的键值对。
 
-The value for the "code" name/value pair is a language-independent string.
-Its value is a service-defined error code that SHOULD be human-readable.
-This code serves as a more specific indicator of the error than the HTTP error code specified in the response.
-Services SHOULD have a relatively small number (about 20) of possible values for "code," and all clients MUST be capable of handling all of them.
-Most services will require a much larger number of more specific error codes, which are not interesting to all clients.
-These error codes SHOULD be exposed in the "innererror" name/value pair as described below.
-Introducing a new value for "code" that is visible to existing clients is a breaking change and requires a version increase.
-Services can avoid breaking changes by adding new error codes to "innererror" instead.
+键值为 ”code“ 对应的值是一个语言无关的字符串。
+值是一个服务自定义的错误码，并且应该（SHOULD）是可读性较好的。
+这个 code 是对 HTTP 返回值错误码的一个补充，提供了更具体的信息。
+服务应该（SHOULD）有一个相对较小的错误码集合（大约 20 个左右），并且所有的客户端必须（MUST）能够处理这些错误码。
+大多数服务通常会有大量的具体的错误码，这些错误码对于客户端来说通常是不需要关心的。
+这些错误码应该（SHOULD）定义在 ”intererror“ 这个键值对中。
+新添加的 ”code“ 对于现有的客户端是可见的，因此是一个不兼容的改动，需要版本号增加。
+服务端可以通过把新的错误码放在 ”intererror“ 里来避免不兼容的改动。
 
-The value for the "message" name/value pair MUST be a human-readable representation of the error.
-It is intended as an aid to developers and is not suitable for exposure to end users.
-Services wanting to expose a suitable message for end users MUST do so through an [annotation][odata-json-annotations] or custom property.
-Services SHOULD NOT localize "message" for the end user, because doing so MAY make the value unreadable to the app developer who may be logging the value, as well as make the value less searchable on the Internet.
+键值为 “message” 对应的值必须（MUST）能够清晰的表达错误信息。
+这其实是给开发者的一个补充，不适合暴露给终端用户。
+服务端如果想给终端用户提供一个合适的错误信息必须 （MUST）通过 [annotation][odata-json-annotations] 或者自定义属性。
+服务不应该（SHOULD NOT）把 “message” 做本地化处理，因此这样可能（MAY）会导致开发者难以阅读，也使得错误信息难以通过网络来搜索。
 
-The value for the "target" name/value pair is the target of the particular error (e.g., the name of the property in error).
+键值为 “target” 对应的值对应着详细的错误信息（例如错误信息里属性的名称）。
 
-The value for the "details" name/value pair MUST be an array of JSON objects that MUST contain name/value pairs for "code" and "message," and MAY contain a name/value pair for "target," as described above.
-The objects in the "details" array usually represent distinct, related errors that occurred during the request.
-See example below.
+键值为 ”detail“ 对应的值为必须（MUST）是包含了 ”code“ 和 “message” 键值对的 JOSN Array，也可能（MAY）包含了上述的 “target” 键值对。
+“detail” 中的 JSON Array 里包含的对象通常蕴含了请求相关的错误信息。
+示例如下。
 
-The value for the "innererror" name/value pair MUST be an object.
-The contents of this object are service-defined.
-Services wanting to return more specific errors than the root-level code MUST do so by including a name/value pair for "code" and a nested "innererror." Each nested "innererror" object represents a higher level of detail than its parent.
-When evaluating errors, clients MUST traverse through all of the nested "innererrors" and choose the deepest one that they understand.
-This scheme allows services to introduce new error codes anywhere in the hierarchy without breaking backwards compatibility, so long as old error codes still appear.
-The service MAY return different levels of depth and detail to different callers.
-For example, in development environments, the deepest "innererror" MAY contain internal information that can help debug the service.
-To guard against potential security concerns around information disclosure, services SHOULD take care not to expose too much detail unintentionally.
-Error objects MAY also include custom server-defined name/value pairs that MAY be specific to the code.
-Error types with custom server-defined properties SHOULD be declared in the service's metadata document.
-See example below.
+键值为 “intererror” 对应的值必须（MUST）是一个对象。
+对象的内容是服务自定义的。
+服务如果想返回比根部更具体的错误信息必须（MUST）通过包含 “code” 和 “intererror” 的键值对。每一层嵌套的 “intererror” 对象代表了比上级更加具体的错误信息。
+当处理错误的时候，客户端必须（MUST）遍历所有的嵌套的 “intererror” ，然后选择最深层次的错误信息。
+这种模式允许服务在不影响兼容性的情况下引入新的错误代码，就的错误代码仍然存在，新的错误代码嵌套在层级关系中。
+服务可以（MAY）根据不同的调用方返回不同深度和详情的错误信息。
+例如，在开发环境中，最深层次的 “intererror“ 可以（MAY）包含帮助调试服务的内部信息。
+为了保护信息安全不被泄露，服务应该（SHOULD）暴露太多的细节。
+错误对象可能（MAY）包含服务端自定义的键值对，这些键值对可能（MAY）根据 code 而变化。
+服务端自定义的错误类型应该（SHOULD）在服务的元数据文档里进行声明。
+示例如下。
 
-Error responses MAY contain [annotations][odata-json-annotations] in any of their JSON objects.
+返回值中的错误信息可以（MAY）在任意的 JSON 对象中包含[annotations][odata-json-annotations]。
 
-We recommend that for any transient errors that may be retried, services SHOULD include a Retry-After HTTP header indicating the minimum number of seconds that clients SHOULD wait before attempting the operation again.
+我们建议对于服务出现短暂的错误，可以有重试机制，服务的返回的 Header 应该（SHOULD）包含头 Retry-After，来表明客户端最短的重试时间。
+
 
 ##### ErrorResponse : Object
 
-Property | Type | Required | Description
+属性 | 类型 | 必须 | 描述
 -------- | ---- | -------- | -----------
-`error` | Error | ✔ | The error object.
+`error` | Error | ✔ | 错误对象
 
 ##### Error : Object
 
-Property | Type | Required | Description
+属性 | 类型 | 必须 | 描述
 -------- | ---- | -------- | -----------
-`code` | String (enumerated) | ✔ | One of a server-defined set of error codes.
-`message` | String | ✔ | A human-readable representation of the error.
-`target` | String |  | The target of the error.
-`details` | Error[] |  | An array of details about specific errors that led to this reported error.
-`innererror` | InnerError |  | An object containing more specific information than the current object about the error.
+`code` | String (enumerated) | ✔ | 服务定义的错误码中的一个。
+`message` | String | ✔ | 人类可读的错误描述信息。
+`target` | String |  | 错误的 ”target“
+`details` | Error[] |  | 关于此错误的一组详细信息。
+`innererror` | InnerError |  | 包含更具体的信息的错误对象。
 
 ##### InnerError : Object
 
@@ -518,9 +528,9 @@ Property | Type | Required | Description
 `code` | String |  | A more specific error code than was provided by the containing error.
 `innererror` | InnerError |  | An object containing more specific information than the current object about the error.
 
-##### Examples
+##### 示例
 
-Example of "innererror":
+"innererror" 示例:
 
 ```json
 {
@@ -544,13 +554,11 @@ Example of "innererror":
   }
 }
 ```
+在这个示例中，最基本的错误代码是 ”BadArgument“，但也是客户端最关心的，”intererror“ 里包含了更具体的错误代码。
+”PasswordReuseNotAllowed“ 可能是服务中后来被加入的，再次之前只返回上层的 ”PasswordDoesNotMeetPolicy“ 的错误码。
+”PasswordDoesNotMeetPolicy“ 错误同时也包含了附加的键值对，这允许客户端根据服务端的配置动态的判断用户的输入是否符合要求，或者把服务端的约束做本地化处理后显示给用户。
 
-In this example, the most basic error code is "BadArgument," but for clients that are interested, there are more specific error codes in "innererror."
-The "PasswordReuseNotAllowed" code may have been added by the service at a later date, having previously only returned "PasswordDoesNotMeetPolicy."
-Existing clients do not break when the new error code is added, but new clients MAY take advantage of it.
-The "PasswordDoesNotMeetPolicy" error also includes additional name/value pairs that allow the client to determine the server's configuration, validate the user's input programmatically, or present the server's constraints to the user within the client's own localized messaging.
-
-Example of "details":
+"details" 示例:
 
 ```json
 {
@@ -579,17 +587,18 @@ Example of "details":
 }
 ```
 
-In this example there were multiple problems with the request, with each individual error listed in "details."
+在这个示例中，次请求出现了多个问题，问题分别罗列在 ”detail“ 属性中。
 
-### 7.11 HTTP Status Codes
-Standard HTTP Status Codes SHOULD be used; see the HTTP Status Code definitions for more information.
 
-### 7.12 Client library optional
-Developers MUST be able to develop on a wide variety of platforms and languages, such as Windows, MacOS, Linux, C#, Python, Node.js, and Ruby.
+### 7.11 HTTP 状态码
+应该（SHOULD）使用标准的 HTTP 状态码；此部分请参考标准的 HTTP 状态码定义。
 
-Services SHOULD be able to be accessed from simple HTTP tools such as curl without significant effort.
+### 7.12 客户端可选库
+开发者必须（MUST）可以在不同的平台或者使用不同的语言来进行开发，例如 Windows，MacOS，Linux，C#，Python，Node.js，或者是 Ruby。
 
-Service developer portals SHOULD provide the equivalent of "Get Developer Token" to facilitate experimentation and curl support.
+服务应该（SHOULD）可以被简单的 HTTP 请求工具访问，例如不费吹灰之力的 curl。
+
+服务开发入口应该（SHOULD）提供类似 ”获取开发者 Token“ 的工具来方便的实验，为 curl 提供支持。
 
 ## 8 CORS
 Services compliant with the Microsoft REST API Guidelines MUST support [CORS (Cross Origin Resource Sharing)][cors].
