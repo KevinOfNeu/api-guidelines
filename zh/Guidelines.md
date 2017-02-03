@@ -601,55 +601,59 @@ Property | Type | Required | Description
 服务开发入口应该（SHOULD）提供类似 ”获取开发者 Token“ 的工具来方便的实验，为 curl 提供支持。
 
 ## 8 CORS
-Services compliant with the Microsoft REST API Guidelines MUST support [CORS (Cross Origin Resource Sharing)][cors].
-Services SHOULD support an allowed origin of CORS * and enforce authorization through valid OAuth tokens.
-Services SHOULD NOT support user credentials with origin validation.
-There MAY be exceptions for special cases.
+符合 Microsoft REST API 指南的服务必须（MUST）支持[CORS（跨源资源共享）][cors]。
+服务应该（SHOULD）支持 CORS * 的允许来源，并通过有效的 OAuth 令牌实施授权。
+服务不应该（SHOULD NOT）支持具有源验证的用户凭证。
+特殊情况可能（MAY）有例外。
 
-### 8.1 Client guidance
-Web developers usually don't need to do anything special to take advantage of CORS.
-All of the handshake steps happen invisibly as part of the standard XMLHttpRequest calls they make.
+### 8.1 客户端指南
+Web 开发通常不需要做什么特殊处理就可以享受 CORS 的优势。
+标准的 XMLHttpRequest 屏蔽了 HTTP 握手过程的细节。
 
-Many other platforms, such as .NET, have integrated support for CORS.
+其他的平台，例如 .NET 已经提供了 CORS 的支持。
 
-#### 8.1.1 Avoiding preflight
-Because the CORS protocol can trigger preflight requests that add additional round trips to the server, performance-critical apps might be interested in avoiding them.
-The spirit behind CORS is to avoid preflight for any simple cross-domain requests that old non-CORS-capable browsers were able to make.
-All other requests require preflight.
+#### 8.1.1 避免预检
+因为 CORS 协议可以触发预检请求，从而向服务器发送了额外的网络请求，所以性能关键型应用程序可能会针对性的避免额外的网络请求。
+CORS 背后的精神是避免旧的，没有 CORS 的浏览器进行的任何简单跨域请求进行预检。
+所有其他请求需要预检。
 
-A request is "simple" and avoids preflight if its method is GET, HEAD or POST, and if it doesn't contain any request headers besides Accept, Accept-Language and Content-Language.
-For POST requests, the Content-Type header is also allowed, but only if its value is "application/x-www-form-urlencoded," "multipart/form-data" or "text/plain."
-For any other headers or values, a preflight request will happen.
+如果其方法是 GET，HEAD 或 POST，并且除了 Accept，Accept-Language 和 Content-Language 之外不包含任何请求头，那么我们称这个请求是”简单的”，同时会避免预检。
+对于 POST 请求，还允许 Content-Type 头，但前提是其值为 “application/x-www-form-urlencoded”，“multipart/form-data” 或 “text/plain”。
+对于任何其他头或请求值，将会发生预检请求。
 
-### 8.2 Service guidance
- At minimum, services MUST:
-- Understand the Origin request header that browsers send on cross-domain requests, and the Access-Control-Request-Method request header that they send on preflight OPTIONS requests that check for access.
-- If the Origin header is present in a request:
-  - If the request uses the OPTIONS method and contains the Access-Control-Request-Method header, then it is a preflight request intended to probe for access before the actual request. Otherwise, it is an actual request. For preflight requests, beyond performing the steps below to add headers, services MUST perform no additional processing and MUST return a 200 OK. For non-preflight requests, the headers below are added in addition to the request's regular processing.
-  - Add an Access-Control-Allow-Origin header to the response, containing the same value as the Origin request header. Note that this requires services to dynamically generate the header value. Resources that do not require cookies or any other form of [user credentials][cors-user-credentials] MAY respond with a wildcard asterisk (*) instead. Note that the wildcard is acceptable here only, and not for any of the other headers described below.
-  - If the caller requires access to a response header that is not in the set of [simple response headers][cors-simple-headers] (Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma), then add an Access-Control-Expose-Headers header containing the list of additional response header names the client should have access to.
-  - If the request requires cookies, then add an Access-Control-Allow-Credentials header set to "true."
-  - If the request was a preflight request (see first bullet), then the service MUST:
-    - Add an Access-Control-Allow-Headers response header containing the list of request header names the client is permitted to use. This list need only contain headers that are not in the set of [simple request headers][cors-simple-headers] (Accept, Accept-Language, Content-Language). If there are no restrictions on headers the service accepts, the service MAY simply return the same value as the Access-Control-Request-Headers header sent by the client.
-    - Add an Access-Control-Allow-Methods response header containing the list of HTTP methods the caller is permitted to use.
+### 8.2 服务端指南
+最坏的情况下， 服务必须（MUST）:
 
-Add an Access-Control-Max-Age pref response header containing the number of seconds for which this preflight response is valid (and hence can be avoided before subsequent actual requests). Note that while it is customary to use a large value like 2592000 (30 days), many browsers self-impose a much lower limit (e.g., five minutes).
+- 了解浏览器在跨域请求上发送的 Origin 请求头，以及在检查访问权限的预检 OPTIONS 请求上发送的 Access-Control-Request-Method 请求头。
+- 如果请求中存在 Origin 头:
+	- 如果请求使用 OPTIONS 方法并包含 Access-Control-Request-Method 头，那么它是一个预检请求，用于在实际请求之前探测访问。否则，它是一个实际请求。对于预检请求，除了执行以下步骤添加头部之外，服务必须（MUST）不执行额外的处理并且必须（MUST）返回 200 OK。对于非预检请求，除了请求的常规处理之外，还添加以下标头。
+	- 向响应添加 Access-Control-Allow-Origin 头，其中包含与Origin请求头相同的值。注意，这需要服务来动态生成头值。不需要Cookie或任何其他形式的[用户凭据] [cors-user-credentials]的资源可以（MAY）使用通配符星号（*）进行响应。请注意，通配符在这里是可以接受的，而不是下面描述的任何其他标头。
+	- 如果调用者需要访问不在[简单响应头] [cors-simple-headers]（Cache-Control，Content-Language，Content-Type，Expires，Last-Modified，Pragma）集合中的响应头，然后添加一个 Access-Control-Expose-Headers 头，其中包含客户端应该具有访问权限的附加响应头名称列表。
+	- 如果请求需要 Cookie ，请添加值为 “true” 的 Access-Control-Allow-Credentials 标头。
+	- 如果请求是预检请求（见第一个项），那么服务必须（MUST）：
+		- 添加一个 Access-Control-Allow-Headers 响应头，其中包含客户端允许使用的请求头名称列表。此列表只需要包含不在[简单请求头] [cors-simple-headers]（Accept，Accept-Language，Content-Language）集合中的头。如果服务接受的报头没有限制，则服务可以（MAY）简单地返回与客户端发送的访问控制请求报头头相同的值。
+		- 添加一个 Access-Control-Allow-Methods 响应头，其中包含允许调用者使用的HTTP方法列表。
+    
 
-Because browser preflight response caches are notoriously weak, the additional round trip from a preflight response hurts performance.
-Services used by interactive Web clients where performance is critical SHOULD avoid patterns that cause a preflight request
-- For GET and HEAD calls, avoid requiring request headers that are not part of the simple set above. Allow them to be provided as query parameters instead.
-  - The Authorization header is not part of the simple set, so the authentication token MUST be sent through the "access_token" query parameter instead, for resources requiring authentication. Note that passing authentication tokens in the URL is not recommended, because it can lead to the token getting recorded in server logs and exposed to anyone with access to those logs. Services that accept authentication tokens through the URL MUST take steps to mitigate the security risks, such as using short-lived authentication tokens, suppressing the auth token from getting logged, and controlling access to server logs.
 
-- Avoid requiring cookies. XmlHttpRequest will only send cookies on cross-domain requests if the "withCredentials" attribute is set; this also causes a preflight request.
-  - Services that require cookie-based authentication MUST use a "dynamic canary" to secure all APIs that accept cookies.
+添加前缀为 Access-Control-Max-Age 的响应头，其中包含此预检响应有效的秒数（因此可以在后续实际请求之前避免再次发送预检请求）。 请注意，虽然习惯上使用像2592000（30天）这样的大值，但是许多浏览器自我强加了更低的限制（例如5分钟）。
 
-- For POST calls, prefer simple Content-Types in the set of ("application/x-www-form-urlencoded," "multipart/form-data," "text/plain") where applicable. Any other Content-Type will induce a preflight request.
-  - Services MUST NOT contravene other API recommendations in the name of avoiding CORS preflight requests. In particular, in accordance with recommendations, most POST requests will actually require a preflight request due to the Content-Type.
-  - If eliminating preflight is critical, then a service MAY support alternative mechanisms for data transfer, but the RECOMMENDED approach MUST also be supported.
+因为浏览器预检响应缓存非常弱，来自预检响应的额外往返请求会伤害性能。性能至关重要的交互式 Web 客户端使用的服务应（SHOULD）避免使用引起预检请求的模式。
 
-In addition, when appropriate services MAY support the JSONP pattern for simple, GET-only cross-domain access.
-In JSONP, services take a parameter indicating the format (_$format=json_) and a parameter indicating a callback (_$callback=someFunc_), and return a text/javascript document containing the JSON response wrapped in a function call with the indicated name.
-More on JSONP at Wikipedia: [JSONP](https://en.wikipedia.org/wiki/JSONP).
+- 对于 GET 和 HEAD 调用，避免要求不是上述简单集合的一部分的请求标头。可以让它们作为查询参数提供。
+   - Authorization 头不是简单集合的一部分，因此认证令牌务必通过 “access_token” 查询参数发送，用于需要认证的资源。请注意，不建议在URL中传递身份验证令牌，因为它可能导致令牌记录在服务器日志中，并暴露给有权访问这些日志的任何人。通过 URL 接受身份验证令牌的服务必须采取措施减轻安全风险，例如使用短期身份验证令牌，抑制身份验证令牌被记录，以及控制对服务器日志的访问。
+
+- 避免需要 Cookie 。如果设置了 “withCredentials” 属性，则 XmlHttpRequest 只会在跨网域请求上发送 Cookie ;这也会导致预检请求。
+   - 需要基于Cookie的身份验证的服务必须（MUST）使用 “dynamic canary” 来保护所有接受 Cookie 的 API。
+
+- 对于 POST 调用，在适用的情况下，更喜欢在（“application / x-www-form-urlencoded，”“multipart / form-data”，“text / plain”）集合中的简单内容类型。任何其他 Content-Type 将引起预检请求。
+   - 服务不得（MUST NOT）以避免 CORS 预检请求的名义违反其他API建议。特别地，根据建议，由于 Content-Type，大多数POST请求实际上将需要预检请求。
+   - 如果消除预检是至关重要的，那么服务可能（MAY）支持数据传输的替代机制，但也必须（MUST）支持建议的方法。
+
+此外，在适当的时机，服务可以（MAY）支持JSONP模式，以用于简单的，仅GET的跨域访问。
+在 JSONP 中，服务接受一个参数，指示格式（ _format = json_ ）和一个指示回调的参数（ _callback = someFunc_ ），并返回一个 text/ javascript 文档，其中回调函数中包裹了 JSON 格式的响应数据，
+
+更多关于 JSONP 的介绍请移步维基百科 [JSONP](https://en.wikipedia.org/wiki/JSONP)。
 
 ## 9 Collections
 ### 9.1 Item keys
